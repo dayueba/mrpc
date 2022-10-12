@@ -15,7 +15,9 @@ func main() {
 	}
 	s := mrpc.NewServer(opts ...)
 
-	if err := s.RegisterService("helloworld.Greeter", new(testdata.Service)); err != nil {
+	mockdb := testdata.DB("mockdb")
+	srv := testdata.NewService(mockdb) // 依赖注入思想
+	if err := s.RegisterService("helloworld.Greeter", srv); err != nil {
 		panic(err)
 	}
 
