@@ -3,6 +3,7 @@ package testdata
 import (
 	"fmt"
 	"context"
+	"errors"
 )
 
 type DB string
@@ -42,4 +43,8 @@ func (s *Service) Add(ctx context.Context, req *HelloRequest) (*AddReply, error)
 	}
 
 	return rsp, nil
+}
+
+func (s *Service) Oops(ctx context.Context, req *HelloRequest) (*HelloReply, error) {
+	return nil, errors.New("oops")
 }

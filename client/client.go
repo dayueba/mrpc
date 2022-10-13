@@ -2,6 +2,8 @@ package client
 
 import (
 	"context"
+	"math"
+	"strconv"
 	// "fmt"
 
 	"github.com/dayueba/mrpc/codec"
@@ -32,6 +34,7 @@ var New = func() *defaultClient {
 
 type defaultClient struct {
 	opts *Options
+	msgId int
 }
 
 // call by reflect
@@ -42,11 +45,16 @@ func (c *defaultClient) Call(ctx context.Context, method string, params interfac
 	callOpts := make([]Option, 0, len(opts)+1)
 	callOpts = append(callOpts, opts ...)
 
+	msgId := c.msgId
+	if msgId == math.MaxInt32 {
+		c.msgId = 1
+	}
+
 	req := &protocol.Request{
 		Method: method,
 		Type: "call",
 		Params: params,
-		MsgId: 100, // todo: 先随便写一个, 没啥用
+		MsgId: strconv.Itoa(msgId),
 	}
 	
 	err := c.Invoke(ctx, req, rsp, method, callOpts ...)
@@ -59,7 +67,6 @@ func (c *defaultClient) Call(ctx context.Context, method string, params interfac
 
 
 func (c *defaultClient) Invoke(ctx context.Context, req , rsp interface{}, path string, opts ...Option) error {
-
 	for _, o := range opts {
 		o(c.opts)
 	}
@@ -83,7 +90,7 @@ func (c *defaultClient) invoke(ctx context.Context, req, rsp interface{}) error 
 	serialization := codec.DefaultSerialization
 	arr := make([]interface{}, 0)
 	r := req.(*protocol.Request)
-	arr = append(arr, "1") // todo id
+	arr = append(arr, r.MsgId)
 	arr = append(arr, r.Type)
 	arr = append(arr, r.Method)
 	arr = append(arr, r.Params)

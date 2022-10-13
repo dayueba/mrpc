@@ -37,4 +37,9 @@ func main() {
 	err = c.Call(context.Background(), "helloworld.Greeter2.Add", req, rsp2, opts ...)
 	fmt.Printf("%+v\n", rsp2)
 	fmt.Println(err)
+
+	rsp3 := &Response{}
+	err = c.Call(context.Background(), "helloworld.Greeter.oops", req, rsp3, opts ...)
+	fmt.Printf("%+v\n", rsp3)
+	fmt.Println(err)
 }

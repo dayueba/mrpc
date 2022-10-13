@@ -1,7 +1,7 @@
 package protocol
 
 type Request struct {
-	MsgId uint32
+	MsgId string
 	Type  string
   Method string
   Params interface{}
