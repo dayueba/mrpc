@@ -1,15 +1,17 @@
 package mrpc
+
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"reflect"
-	"syscall"
 	"strings"
-	"log"
+	"syscall"
 
 	"github.com/dayueba/mrpc/interceptor"
+	"github.com/dayueba/mrpc/protocol"
 )
 
 type Server struct {
@@ -94,7 +96,19 @@ func getServiceMethods(serviceType reflect.Type, serviceValue reflect.Value) ([]
 			if len(ceps) == 0 {
 				values := method.Func.Call([]reflect.Value{serviceValue, reflect.ValueOf(ctx), reflect.ValueOf(req)})
 				// determine error
-				return values[0].Interface(), nil
+				v1 := values[1].Interface()
+				var err error
+				if v1 == nil {
+					err = nil
+				} else if e, ok := v1.(protocol.RpcError); ok {
+					err = e
+				} else if e, ok := v1.(error); ok {
+					err = protocol.RpcError{
+						ErrorCode: -1,
+						Message: e.Error(),
+					}
+				}
+				return values[0].Interface(), err
 			}
 
 			handler := func(ctx context.Context, reqbody interface{}) (interface{}, error) {
@@ -171,10 +185,10 @@ func (s *Server) Register(sd *ServiceDesc, svr interface{}) {
 		}
 	}
 
-	s.service.AddSvr(sd.ServiceName, svr)
+	s.service.AddSvr(strings.ToLower(sd.ServiceName), svr)
 
 	for _, method := range sd.Methods {
-		handlerName := strings.ToLower( sd.ServiceName + "." + method.MethodName)
+		handlerName := strings.ToLower(sd.ServiceName + "." + method.MethodName)
 		s.service.Register(handlerName, method.Handler)
 	}
 }

@@ -7,15 +7,10 @@ import (
 	"strings"
 
 	"github.com/dayueba/mrpc/codec"
-
-	// "github.com/lubanproj/gorpc/codes"
 	"github.com/dayueba/mrpc/interceptor"
-	// "github.com/lubanproj/gorpc/log"
-
 	"github.com/dayueba/mrpc/utils"
-	// "github.com/lubanproj/gorpc/protocol"
+	"github.com/dayueba/mrpc/protocol"
 	"github.com/dayueba/mrpc/transport"
-	// "github.com/golang/protobuf/proto"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -122,7 +117,9 @@ func (s *service) Handle(ctx context.Context, reqbuf []byte) ([]byte, error) {
 
 	dec := func(req interface{}) error {
 		if err := mapstructure.Decode(payload, req); err != nil {
-			return err
+			return protocol.RpcError{
+				Message: err.Error(),
+			}
 		}
 		return nil
 	}
@@ -146,14 +143,24 @@ func (s *service) Handle(ctx context.Context, reqbuf []byte) ([]byte, error) {
 	}
 
 	rsp, err := handler(ctx, s.svr[srvName], dec, s.opts.interceptors)
+	result := []interface{}{}
+
 	if err != nil {
-		return nil, err
+		result = append(result, msgId)
+		// todo 
+		// result = append(result, "error")
+		result = append(result, "reply")
+		result = append(result, err)
+		// return nil, err
+	} else {
+		result = append(result, msgId)
+		result = append(result, "reply")
+		result = append(result, rsp)
 	}
 
-	result := []interface{}{}
-	result = append(result, msgId)
-	result = append(result, "reply")
-	result = append(result, rsp)
+	// result = append(result, msgId)
+	// result = append(result, "reply")
+	// result = append(result, rsp)
 
 	rspbuf, err := serverSerialization.Marshal(result)
 	if err != nil {

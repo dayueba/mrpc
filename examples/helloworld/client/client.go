@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dayueba/mrpc/client"
+	"github.com/dayueba/mrpc/protocol"
 )
 
 type Response struct {
@@ -28,18 +29,18 @@ func main() {
 		A: 1,
 		B: 2,
 	}
+	var err error
 	rsp := &Response{}
-	err := c.Call(context.Background(), "helloworld.Greeter.Add", req, rsp, opts ...)
+	err = c.Call(context.Background(), "helloworld.Greeter.Add", req, rsp, opts ...)
 	fmt.Printf("%+v\n", rsp)
 	fmt.Println(err)
 
-	rsp2 := &Response{}
-	err = c.Call(context.Background(), "helloworld.Greeter2.Add", req, rsp2, opts ...)
-	fmt.Printf("%+v\n", rsp2)
-	fmt.Println(err)
+	// rsp2 := &Response{}
+	// err = c.Call(context.Background(), "helloworld.Greeter2.Add", req, rsp2, opts ...)
+	// fmt.Printf("%+v\n", rsp2)
+	// fmt.Println(err)
 
 	rsp3 := &Response{}
-	err = c.Call(context.Background(), "helloworld.Greeter.oops", req, rsp3, opts ...)
-	fmt.Printf("%+v\n", rsp3)
-	fmt.Println(err)
+	err = c.Call(context.Background(), "helloworld.greeter.oops", req, rsp3, opts ...)
+	fmt.Printf("%+v, %d, %s\n", rsp3, err.(protocol.RpcError).ErrorCode, err.(protocol.RpcError).Message)
 }

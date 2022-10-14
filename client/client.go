@@ -4,7 +4,6 @@ import (
 	"context"
 	"math"
 	"strconv"
-	// "fmt"
 
 	"github.com/dayueba/mrpc/codec"
 	"github.com/dayueba/mrpc/codes"
@@ -34,7 +33,7 @@ var New = func() *defaultClient {
 
 type defaultClient struct {
 	opts *Options
-	msgId int
+	msgId int32
 }
 
 // call by reflect
@@ -54,7 +53,7 @@ func (c *defaultClient) Call(ctx context.Context, method string, params interfac
 		Method: method,
 		Type: "call",
 		Params: params,
-		MsgId: strconv.Itoa(msgId),
+		MsgId: strconv.Itoa(int(msgId)),
 	}
 	
 	err := c.Invoke(ctx, req, rsp, method, callOpts ...)
@@ -129,6 +128,15 @@ func (c *defaultClient) invoke(ctx context.Context, req, rsp interface{}) error 
 	err = serialization.Unmarshal(rspbuf, &respp)
 	if err != nil {
 		return err
+	}
+
+	if respp[1].(string) == "error" {
+		e := protocol.RpcError{}
+		err = mapstructure.Decode(respp[len(respp)-1], &e)
+		if err != nil {
+			return err
+		}
+		return e
 	}
 
 	return mapstructure.Decode(respp[len(respp)-1],&rsp)
