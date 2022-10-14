@@ -86,6 +86,7 @@ func (c *defaultClient) Invoke(ctx context.Context, req , rsp interface{}, path 
 }
 
 func (c *defaultClient) invoke(ctx context.Context, req, rsp interface{}) error {
+	// 对请求体序列化
 	serialization := codec.DefaultSerialization
 	arr := make([]interface{}, 0)
 	r := req.(*protocol.Request)
@@ -99,13 +100,14 @@ func (c *defaultClient) invoke(ctx context.Context, req, rsp interface{}) error 
 		return codes.NewFrameworkError(codes.ClientMsgErrorCode, "request marshal failed ...")
 	}
 
+	// 添加包头
 	clientCodec := codec.DefaultCodec
-
 	reqbody, err := clientCodec.Encode(payload)
 	if err != nil {
 		return err
 	}
 
+	// 发送请求
 	clientTransport := c.NewClientTransport()
 	clientTransportOpts := []transport.ClientTransportOption {
 		transport.WithServiceName(c.opts.serviceName),
@@ -119,6 +121,7 @@ func (c *defaultClient) invoke(ctx context.Context, req, rsp interface{}) error 
 		return err
 	}
 
+	// 对 server 回包进行解包
 	rspbuf, err := clientCodec.Decode(frame)
 	if err != nil {
 		return err
@@ -139,6 +142,7 @@ func (c *defaultClient) invoke(ctx context.Context, req, rsp interface{}) error 
 		return e
 	}
 
+	// 转结构体
 	return mapstructure.Decode(respp[len(respp)-1],&rsp)
 }
 

@@ -14,10 +14,12 @@ const DefaultPayloadLength = 1024
 const MaxPayloadLength = 4 * 1024 * 1024
 
 type ServerTransport interface {
+	// 监听和处理请求
 	ListenAndServe(context.Context, ...ServerTransportOption) error
 }
 
 type ClientTransport interface {
+	// 发送请求
 	Send(context.Context, []byte, ...ClientTransportOption) ([]byte, error)
 }
 

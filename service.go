@@ -148,8 +148,8 @@ func (s *service) Handle(ctx context.Context, reqbuf []byte) ([]byte, error) {
 	if err != nil {
 		result = append(result, msgId)
 		// todo 
-		// result = append(result, "error")
-		result = append(result, "reply")
+		result = append(result, "error")
+		// result = append(result, "reply")
 		result = append(result, err)
 		// return nil, err
 	} else {

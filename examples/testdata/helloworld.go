@@ -7,12 +7,14 @@ import (
 
 
 	"github.com/dayueba/mrpc/protocol"
+	"github.com/dayueba/mrpc/log"
 )
 
 type DB string
 
 type Service struct {
 	db DB
+	log *log.Helper
 }
 
 type HelloRequest struct {
@@ -32,8 +34,9 @@ type AddReply struct {
 	Result int32 `msgpack:"result"`
 }
 
-func NewService(db DB) *Service {
-	return &Service{db: db}
+func NewService(db DB, logger log.Logger) *Service {
+	fmt.Println(logger)
+	return &Service{db: db, log: log.NewHelper(logger)}
 } 
 
 func (s *Service) SayHello(ctx context.Context, req *HelloRequest) (*HelloReply, error) {
@@ -54,7 +57,7 @@ func (s *Service) Add(ctx context.Context, req *AddRequest) (*AddReply, error) {
 }
 
 func (s *Service) Oops(ctx context.Context, req *HelloRequest) (*HelloReply, error) {
-	fmt.Println("have request")
+	s.log.Log(log.LevelInfo, "message", "have request")
 	return nil, protocol.RpcError{
 		ErrorCode: -1,
 		Message: "1231",

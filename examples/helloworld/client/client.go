@@ -42,5 +42,12 @@ func main() {
 
 	rsp3 := &Response{}
 	err = c.Call(context.Background(), "helloworld.greeter.oops", req, rsp3, opts ...)
-	fmt.Printf("%+v, %d, %s\n", rsp3, err.(protocol.RpcError).ErrorCode, err.(protocol.RpcError).Message)
+	// fmt.Printf("%+v, %d, %s\n", rsp3, err.(protocol.RpcError).ErrorCode, err.(protocol.RpcError).Message)
+	fmt.Printf("%+v\n", rsp3)
+	if e, ok := err.(*protocol.RpcError); ok {
+		fmt.Printf("%+v\n", e)
+	} else if err != nil{
+		fmt.Println("oops, have error: ", err)
+	}
+
 }

@@ -3,7 +3,6 @@ package mrpc
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"reflect"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/dayueba/mrpc/interceptor"
 	"github.com/dayueba/mrpc/protocol"
+	"github.com/dayueba/mrpc/log"
 )
 
 type Server struct {

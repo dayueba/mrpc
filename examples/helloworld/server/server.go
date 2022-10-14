@@ -3,8 +3,10 @@ package main
 import (
 	"time"
 
+	"go.uber.org/zap"
 	"github.com/dayueba/mrpc"
 	"github.com/dayueba/mrpc/examples/testdata"
+	"github.com/dayueba/mrpc/log"
 )
 
 
@@ -15,8 +17,11 @@ func main() {
 	}
 	s := mrpc.NewServer(opts ...)
 
+
 	mockdb := testdata.DB("mockdb")
-	srv := testdata.NewService(mockdb) // 依赖注入思想
+	logger, _ := zap.NewProduction()
+	zapLog := log.NewZapLogger(logger)
+	srv := testdata.NewService(mockdb, zapLog) // 依赖注入思想
 	if err := s.RegisterService("helloworld.Greeter", srv); err != nil {
 		panic(err)
 	}
