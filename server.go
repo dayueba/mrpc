@@ -203,16 +203,6 @@ func (s *Server) Serve() {
 	s.Close()
 }
 
-type emptyService struct{}
-
-func (s *Server) ServeHttp() {
-	if err := s.RegisterService("/http", new(emptyService)); err != nil {
-		panic(err)
-	}
-
-	s.Serve()
-}
-
 func (s *Server) Close() {
 	s.closing = false
 

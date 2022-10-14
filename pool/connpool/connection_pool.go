@@ -62,7 +62,7 @@ func NewConnPool(opt ...Option) *pool {
 }
 
 func (p *pool) Get(ctx context.Context, network string, address string) (net.Conn, error) {
-
+	// 先从 map 中尝试获取 key 为 address 的子连接池
 	if value, ok := p.conns.Load(address); ok {
 		if cp, ok := value.(*channelPool); ok {
 			conn, err := cp.Get(ctx)
@@ -70,6 +70,7 @@ func (p *pool) Get(ctx context.Context, network string, address string) (net.Con
 		}
 	}
 
+	// 创建新的连接池
 	cp, err := p.NewChannelPool(ctx, network, address)
 	if err != nil {
 		return nil, err
@@ -195,24 +196,17 @@ func (c *channelPool) Put(conn *PoolConn) error {
 }
 
 func (c *channelPool) RegisterChecker(internal time.Duration, checker func(conn *PoolConn) bool) {
-
 	if internal <= 0 || checker == nil {
 		return
 	}
 
 	go func() {
-
 		for {
-
 			time.Sleep(internal)
-
 			length := len(c.conns)
-
 			for i:=0; i < length; i++ {
-
 				select {
 				case pc := <- c.conns :
-
 					if !checker(pc) {
 						pc.MarkUnusable()
 						pc.Close()
@@ -223,15 +217,13 @@ func (c *channelPool) RegisterChecker(internal time.Duration, checker func(conn 
 				default:
 					break
 				}
-
 			}
 		}
-
 	}()
 }
 
+// 负责校验连接是否存活
 func (c *channelPool) Checker (pc *PoolConn) bool {
-
 	// check timeout
 	if pc.t.Add(c.idleTimeout).Before(time.Now()) {
 		return false

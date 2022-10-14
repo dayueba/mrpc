@@ -34,6 +34,7 @@ func (p *PoolConn) Close() error {
 	// reset connection deadline
 	p.Conn.SetDeadline(time.Time{})
 
+	// 如果连接正常 则放回连接池
 	return p.c.Put(p)
 }
 
@@ -44,12 +45,14 @@ func (p *PoolConn) MarkUnusable() {
 }
 
 func (p *PoolConn) Read(b []byte) (int, error) {
+	// 判断连接池是否为不可读状态
 	if p.unusable {
 		return 0, ErrConnClosed
 	}
 	n, err := p.Conn.Read(b)
 	if err != nil {
 		p.MarkUnusable()
+		// 关闭连接
 		p.Conn.Close()
 	}
 	return n, err

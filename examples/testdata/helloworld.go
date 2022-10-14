@@ -35,7 +35,6 @@ type AddReply struct {
 }
 
 func NewService(db DB, logger log.Logger) *Service {
-	fmt.Println(logger)
 	return &Service{db: db, log: log.NewHelper(logger)}
 } 
 
