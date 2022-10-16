@@ -11,7 +11,6 @@ type ClientInterceptor func(ctx context.Context, req, rsp interface{}, ivk Invok
 type Invoker func(ctx context.Context, req, rsp interface{}) error
 
 func ClientIntercept(ctx context.Context, req, rsp interface{}, ceps []ClientInterceptor, ivk Invoker) error {
-
 	if len(ceps) == 0 {
 		return ivk(ctx, req, rsp)
 	}
@@ -30,7 +29,6 @@ func getInvoker(cur int, ceps []ClientInterceptor, ivk Invoker) Invoker {
 }
 
 func ServerIntercept(ctx context.Context, req interface{}, ceps []ServerInterceptor, handler Handler) (interface{}, error) {
-
 	if len(ceps) == 0 {
 		return handler(ctx, req)
 	}

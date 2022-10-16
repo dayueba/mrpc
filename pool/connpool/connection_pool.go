@@ -247,7 +247,3 @@ func isConnAlive(conn net.Conn) bool {
 	conn.SetReadDeadline(time.Time{})
 	return true
 }
-
-
-
-

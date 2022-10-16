@@ -26,3 +26,9 @@ func WithTimeout(timeout time.Duration) ServerOption {
 		o.timeout = timeout
 	}
 }
+
+func WithInterceptor(interceptors ...interceptor.ServerInterceptor) ServerOption {
+	return func(o *ServerOptions) {
+		o.interceptors = append(o.interceptors, interceptors...)
+	}
+}
