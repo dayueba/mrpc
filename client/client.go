@@ -11,7 +11,8 @@ import (
 	"github.com/dayueba/mrpc/pool/connpool"
 	"github.com/dayueba/mrpc/protocol"
 	"github.com/dayueba/mrpc/transport"
-	"github.com/dayueba/mrpc/utils"
+	"github.com/dayueba/mrpc/selector"
+	// "github.com/dayueba/mrpc/utils"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -76,10 +77,10 @@ func (c *defaultClient) Invoke(ctx context.Context, req , rsp interface{}, path 
 		defer cancel()
 	}
 
-	serviceName, method := utils.ParseServicePath(path)
+	// _, method := utils.ParseServicePath(path)
 
-	c.opts.method = method
-	c.opts.serviceName = serviceName
+	// c.opts.method = method
+	// c.opts.serviceName = serviceName
 
 	// execute the interceptor first
 	return interceptor.ClientIntercept(ctx, req, rsp, c.opts.interceptors, c.invoke)
@@ -115,6 +116,7 @@ func (c *defaultClient) invoke(ctx context.Context, req, rsp interface{}) error 
 		transport.WithClientNetwork("tcp"),
 		transport.WithClientPool(connpool.GetPool("default")),
 		transport.WithTimeout(c.opts.timeout),
+		transport.WithSelector(selector.GetSelector(c.opts.selectorName)),
 	}
 	frame, err := clientTransport.Send(ctx, reqbody, clientTransportOpts ...)
 	if err != nil {

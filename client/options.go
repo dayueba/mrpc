@@ -13,6 +13,7 @@ type Options struct {
 	method string // method name
 	target string 	// format e.g.:  ip:port 127.0.0.1:8000
 	timeout time.Duration  // timeout
+	selectorName string      // 服务发现插件名, e.g. : consul、zookeeper、etcd
 	transportOpts transport.ClientTransportOptions
 	interceptors []interceptor.ClientInterceptor
 }
@@ -46,5 +47,11 @@ func WithTimeout(timeout time.Duration) Option {
 func WithInterceptor(interceptors ...interceptor.ClientInterceptor) Option {
 	return func(o *Options) {
 		o.interceptors = append(o.interceptors, interceptors...)
+	}
+}
+
+func WithSelectorName(selectorName string) Option {
+	return func(o *Options) {
+		o.selectorName = selectorName
 	}
 }

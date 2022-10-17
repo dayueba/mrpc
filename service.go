@@ -12,6 +12,7 @@ import (
 	"github.com/dayueba/mrpc/protocol"
 	"github.com/dayueba/mrpc/transport"
 	"github.com/mitchellh/mapstructure"
+	"github.com/dayueba/mrpc/log"
 )
 
 type Service interface {
@@ -76,7 +77,7 @@ func (s *service) Serve(opts *ServerOptions) {
 	serverTransport := transport.DefaultServerTransport
 	s.ctx, s.cancel = context.WithCancel(context.Background())
 	if err := serverTransport.ListenAndServe(s.ctx, transportOpts...); err != nil {
-		fmt.Printf("tcp serve error, %v", err)
+		log.Fatalf("tcp serve error, %v", err)
 		return
 	}
 

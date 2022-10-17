@@ -50,7 +50,15 @@ func (c *clientTransport) Send(ctx context.Context, req []byte, opts ...ClientTr
 }
 
 func (c *clientTransport) SendTcpReq(ctx context.Context, req []byte) ([]byte, error) {
-	addr := c.opts.Target
+	// 服务发现
+	addr, err := c.opts.Selector.Select(c.opts.ServiceName)
+	if err != nil {
+		return nil, err
+	}
+
+	if addr == "" {
+		addr = c.opts.Target
+	}
 
 	conn, err := c.opts.Pool.Get(ctx, c.opts.Network, addr)
 	//	conn, err := net.DialTimeout("tcp", addr, c.opts.Timeout);

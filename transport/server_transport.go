@@ -5,10 +5,11 @@ import (
 	"io"
 	"net"
 	"time"
-	"log"
 
 	"github.com/dayueba/mrpc/codec"
 	"github.com/dayueba/mrpc/codes"
+	"github.com/dayueba/mrpc/log"
+	"github.com/dayueba/mrpc/utils"
 )
 
 type serverTransport struct {
@@ -55,6 +56,11 @@ func (s *serverTransport) ListenAndServe(ctx context.Context, opts ...ServerTran
 	if err != nil {
 		return err
 	}
+	addr, err := utils.Extract(s.opts.Address, lis)
+	if err != nil {
+		return err
+	}
+	log.Infof("%s\n", addr)
 
 	go func() {
 		if err = s.serve(ctx, lis); err != nil {
@@ -74,7 +80,6 @@ func (s *serverTransport) serve(ctx context.Context, lis net.Listener) error {
 	}
 
 	for {
-
 		// check upstream ctx is done
 		select {
 		case <-ctx.Done():
@@ -109,7 +114,7 @@ func (s *serverTransport) serve(ctx context.Context, lis net.Listener) error {
 
 		go func() {
 			if err := s.handleConn(ctx, wrapConn(conn)); err != nil {
-				log.Printf("gorpc handle tcp conn error, %v", err)
+				log.Infof("gorpc handle tcp conn error, %v", err)
 			}
 		}()
 	}
@@ -138,7 +143,7 @@ func (s *serverTransport) handleConn(ctx context.Context, conn *connWrapper) err
 
 		rsp, err := s.handle(ctx, frame)
 		if err != nil {
-			log.Printf("s.handle err is not nil, %v", err)
+			log.Infof("s.handle err is not nil, %v", err)
 		}
 
 		if err = s.write(ctx, conn, rsp); err != nil {
@@ -164,19 +169,19 @@ func (s *serverTransport) handle(ctx context.Context, frame []byte) ([]byte, err
 
 	reqbuf, err := serverCodec.Decode(frame)
 	if err != nil {
-		log.Printf("server Decode error: %v", err)
+		log.Infof("server Decode error: %v", err)
 		return nil, err
 	}
 
 	rspbuf, err := s.opts.Handler.Handle(ctx, reqbuf)
 	if err != nil {
 		// todo: handle error
-		log.Printf("server Handle error: %v", err)
+		log.Infof("server Handle error: %v", err)
 	}
 
 	rspbody, err := serverCodec.Encode(rspbuf)
 	if err != nil {
-		log.Printf("server Encode error, response: %v, err: %v", rspbuf, err)
+		log.Infof("server Encode error, response: %v, err: %v", rspbuf, err)
 		return nil, err
 	}
 
@@ -185,7 +190,7 @@ func (s *serverTransport) handle(ctx context.Context, frame []byte) ([]byte, err
 
 func (s *serverTransport) write(ctx context.Context, conn net.Conn, rsp []byte) error {
 	if _, err := conn.Write(rsp); err != nil {
-		log.Printf("conn Write err: %v", err)
+		log.Infof("conn Write err: %v", err)
 	}
 
 	return nil

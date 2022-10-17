@@ -12,11 +12,14 @@ import (
 	"github.com/dayueba/mrpc/interceptor"
 	"github.com/dayueba/mrpc/protocol"
 	"github.com/dayueba/mrpc/log"
+	"github.com/dayueba/mrpc/plugin"
 )
 
 type Server struct {
 	opts    *ServerOptions
 	service Service
+	name string
+	plugins []plugin.Plugin
 
 	closing bool // whether the server is closing
 }
@@ -31,6 +34,13 @@ func NewServer(opt ...ServerOption) *Server {
 	}
 
 	s.service = NewService(s.opts)
+
+	for pluginName, plugin := range plugin.PluginMap {
+		if !containPlugin(pluginName, s.opts.pluginNames) {
+			 continue
+		}
+		s.plugins = append(s.plugins, plugin)
+ }
 
 	return s
 }
@@ -194,6 +204,11 @@ func (s *Server) Register(sd *ServiceDesc, svr interface{}) {
 }
 
 func (s *Server) Serve() {
+	err := s.InitPlugins()
+	if err != nil {
+		panic(err)
+	}
+
 	s.service.Serve(s.opts)
 
 	ch := make(chan os.Signal, 1)
@@ -205,6 +220,29 @@ func (s *Server) Serve() {
 
 func (s *Server) Close() {
 	s.closing = false
-
+	// todo 服务发现：注销
 	s.service.Close()
+}
+
+func (s *Server) InitPlugins() error {
+	// init plugins
+	for _, p := range s.plugins {
+		 switch val := p.(type) {
+		 case plugin.ResolverPlugin :
+				var services []string
+				services = append(services, s.opts.name)
+
+				pluginOpts := []plugin.Option {
+					 plugin.WithSelectorSvrAddr(s.opts.selectorSvrAddr),
+					 plugin.WithSvrAddr(s.opts.address),
+					 plugin.WithServices(services),
+				}
+				if err := val.Init(pluginOpts ...); err != nil {
+					 log.Errorf("resolver init error, %v", err)
+					 return err
+				}
+		 }
+	}
+
+	return nil
 }

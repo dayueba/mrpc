@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/dayueba/mrpc/pool/connpool"
+	"github.com/dayueba/mrpc/selector"
 )
 
 // ClientTransportOptions includes all ClientTransport parameter options
@@ -13,6 +14,7 @@ type ClientTransportOptions struct {
 	Network     string
 	Pool        connpool.Pool
 	Timeout     time.Duration
+	Selector    selector.Selector
 }
 
 // Use the Options mode to wrap the ClientTransportOptions
@@ -50,5 +52,11 @@ func WithClientPool(pool connpool.Pool) ClientTransportOption {
 func WithTimeout(timeout time.Duration) ClientTransportOption {
 	return func(o *ClientTransportOptions) {
 		o.Timeout = timeout
+	}
+}
+
+func WithSelector(selector selector.Selector) ClientTransportOption {
+	return func(o *ClientTransportOptions) {
+		o.Selector = selector
 	}
 }
