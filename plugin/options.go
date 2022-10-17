@@ -5,6 +5,7 @@ type Options struct {
 	SvrAddr string     // server address
 	Services []string   // service arrays
 	SelectorSvrAddr string  // server discovery address ，e.g. consul server address
+	TracingSvrAddr string   // tracing server address，e.g. jaeger server address
 }
 
 // Option provides operations on Options
@@ -28,5 +29,11 @@ func WithServices(services []string) Option {
 func WithSelectorSvrAddr(addr string) Option {
 	return func(o *Options) {
 		o.SelectorSvrAddr = addr
+	}
+}
+
+func WithTracingSvrAddr(addr string) Option {
+	return func(o *Options) {
+		o.TracingSvrAddr = addr
 	}
 }

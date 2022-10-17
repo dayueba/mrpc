@@ -10,15 +10,16 @@ import (
 	"syscall"
 
 	"github.com/dayueba/mrpc/interceptor"
-	"github.com/dayueba/mrpc/protocol"
 	"github.com/dayueba/mrpc/log"
 	"github.com/dayueba/mrpc/plugin"
+	"github.com/dayueba/mrpc/plugin/jaeger"
+	"github.com/dayueba/mrpc/protocol"
 )
 
 type Server struct {
 	opts    *ServerOptions
 	service Service
-	name string
+	name    string
 	plugins []plugin.Plugin
 
 	closing bool // whether the server is closing
@@ -37,10 +38,10 @@ func NewServer(opt ...ServerOption) *Server {
 
 	for pluginName, plugin := range plugin.PluginMap {
 		if !containPlugin(pluginName, s.opts.pluginNames) {
-			 continue
+			continue
 		}
 		s.plugins = append(s.plugins, plugin)
- }
+	}
 
 	return s
 }
@@ -115,7 +116,7 @@ func getServiceMethods(serviceType reflect.Type, serviceValue reflect.Value) ([]
 				} else if e, ok := v1.(error); ok {
 					err = protocol.RpcError{
 						ErrorCode: -1,
-						Message: e.Error(),
+						Message:   e.Error(),
 					}
 				}
 				return values[0].Interface(), err
@@ -188,10 +189,10 @@ func (s *Server) Register(sd *ServiceDesc, svr interface{}) {
 		log.Fatalf("handlerType %v not match service : %v ", ht, st)
 	}
 
-	if (s.service == nil) {
+	if s.service == nil {
 		s.service = &service{
-			svr: make(map[string]interface{}),
-			handlers:    make(map[string]Handler),
+			svr:      make(map[string]interface{}),
+			handlers: make(map[string]Handler),
 		}
 	}
 
@@ -227,21 +228,34 @@ func (s *Server) Close() {
 func (s *Server) InitPlugins() error {
 	// init plugins
 	for _, p := range s.plugins {
-		 switch val := p.(type) {
-		 case plugin.ResolverPlugin :
-				var services []string
-				services = append(services, s.opts.name)
+		switch val := p.(type) {
+		case plugin.ResolverPlugin:
+			var services []string
+			services = append(services, s.opts.name)
 
-				pluginOpts := []plugin.Option {
-					 plugin.WithSelectorSvrAddr(s.opts.selectorSvrAddr),
-					 plugin.WithSvrAddr(s.opts.address),
-					 plugin.WithServices(services),
-				}
-				if err := val.Init(pluginOpts ...); err != nil {
-					 log.Errorf("resolver init error, %v", err)
-					 return err
-				}
-		 }
+			pluginOpts := []plugin.Option{
+				plugin.WithSelectorSvrAddr(s.opts.selectorSvrAddr),
+				plugin.WithSvrAddr(s.opts.address),
+				plugin.WithServices(services),
+			}
+			if err := val.Init(pluginOpts...); err != nil {
+				log.Errorf("resolver init error, %v", err)
+				return err
+			}
+		case plugin.TracingPlugin:
+
+			pluginOpts := []plugin.Option{
+				plugin.WithTracingSvrAddr(s.opts.tracingSvrAddr),
+			}
+
+			tracer, err := val.Init(pluginOpts...)
+			if err != nil {
+				log.Errorf("tracing init error, %v", err)
+				return err
+			}
+
+			s.opts.interceptors = append(s.opts.interceptors, jaeger.OpenTracingServerInterceptor(tracer, s.opts.tracingSpanName))
+		}
 	}
 
 	return nil

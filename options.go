@@ -14,6 +14,8 @@ type ServerOptions struct {
 	interceptors    []interceptor.ServerInterceptor
 	pluginNames []string         // 插件名字
 	selectorSvrAddr string       // 服务发现地址
+	tracingSvrAddr  string 		 // tracing plugin server address, required when using the third-party tracing plugin
+	tracingSpanName string       // tracing span name, required when using the third-party tracing plugin
 }
 
 type ServerOption func(*ServerOptions)
@@ -51,5 +53,17 @@ func WithPlugin(pluginName ... string) ServerOption {
 func WithSelectorSvrAddr(addr string) ServerOption {
 	return func(o *ServerOptions) {
 		o.selectorSvrAddr = addr
+	}
+}
+
+func WithTracingSvrAddr(addr string) ServerOption {
+	return func(o *ServerOptions) {
+		o.tracingSvrAddr = addr
+	}
+}
+
+func WithTracingSpanName(name string) ServerOption {
+	return func(o *ServerOptions) {
+		o.tracingSpanName = name
 	}
 }

@@ -1,7 +1,8 @@
 package plugin
 
+import "github.com/opentracing/opentracing-go"
+
 type Plugin interface {
-	Init(...Option) error
 }
 
 var PluginMap = make(map[string]Plugin)
@@ -15,4 +16,8 @@ func Register(name string, plugin Plugin) {
 
 type ResolverPlugin interface {
 	Init(...Option) error
+}
+
+type TracingPlugin interface {
+   Init(...Option) (opentracing.Tracer, error)
 }
