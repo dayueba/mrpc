@@ -6,16 +6,8 @@ import (
 
 	"github.com/dayueba/mrpc/client"
 	"github.com/dayueba/mrpc/plugin/consul"
+	"github.com/dayueba/mrpc/examples/testdata"
 )
-
-type Response struct {
-	Result int `mapstructure:"result" msgpack:"result"`
-}
-
-type Request struct {	
-	A int `msgpack:"a"`
-	B int `msgpack:"b"`
-}
 
 func main() {
 	opts := []client.Option {
@@ -25,13 +17,13 @@ func main() {
 	c := client.DefaultClient
 	consul.Init("localhost:8500")
 
-	req := &Request{
+	req := &testdata.Request{
 		A: 1,
 		B: 2,
 	}
 	var err error
 
-	rsp2 := &Response{}
+	rsp2 := &testdata.Response{}
 	err = c.Call(context.Background(), "helloworld.Greeter2.Add", req, rsp2, opts ...)
 	fmt.Printf("%+v\n", rsp2)
 	fmt.Println(err)
