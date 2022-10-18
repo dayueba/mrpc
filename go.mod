@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/armon/go-metrics v0.3.10 // indirect
+	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/hashicorp/consul/api v1.15.2 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect

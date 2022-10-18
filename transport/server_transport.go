@@ -56,17 +56,18 @@ func (s *serverTransport) ListenAndServe(ctx context.Context, opts ...ServerTran
 	if err != nil {
 		return err
 	}
-	addr, err := utils.Extract(s.opts.Address, lis)
-	if err != nil {
-		return err
-	}
-	log.Infof("server listening on %s\n", addr)
 
 	go func() {
 		if err = s.serve(ctx, lis); err != nil {
 			log.Fatalf("transport serve error, %v", err)
 		}
 	}()
+	
+	addr, err := utils.Extract(s.opts.Address, lis)
+	if err != nil {
+		return err
+	}
+	log.Infof("server listening on %s\n", addr)
 
 	return nil
 }

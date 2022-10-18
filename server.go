@@ -14,6 +14,8 @@ import (
 	"github.com/dayueba/mrpc/plugin"
 	"github.com/dayueba/mrpc/plugin/jaeger"
 	"github.com/dayueba/mrpc/protocol"
+	
+	"github.com/armon/go-radix"
 )
 
 type Server struct {
@@ -192,7 +194,7 @@ func (s *Server) Register(sd *ServiceDesc, svr interface{}) {
 	if s.service == nil {
 		s.service = &service{
 			svr:      make(map[string]interface{}),
-			handlers: make(map[string]Handler),
+			handlers: radix.New(),
 		}
 	}
 
