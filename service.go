@@ -8,11 +8,11 @@ import (
 
 	"github.com/dayueba/mrpc/codec"
 	"github.com/dayueba/mrpc/interceptor"
-	"github.com/dayueba/mrpc/utils"
+	"github.com/dayueba/mrpc/log"
 	"github.com/dayueba/mrpc/protocol"
 	"github.com/dayueba/mrpc/transport"
+	"github.com/dayueba/mrpc/utils"
 	"github.com/mitchellh/mapstructure"
-	"github.com/dayueba/mrpc/log"
 )
 
 type Service interface {
@@ -24,10 +24,10 @@ type Service interface {
 }
 
 type service struct {
-	svr         map[string]interface{}      // server
-	ctx         context.Context    // Each service is managed in one context
-	cancel      context.CancelFunc // controller of context
-	serviceName string             // service name
+	svr         map[string]interface{} // server
+	ctx         context.Context        // Each service is managed in one context
+	cancel      context.CancelFunc     // controller of context
+	serviceName string                 // service name
 	handlers    map[string]Handler
 	opts        *ServerOptions // parameter options
 
@@ -109,11 +109,11 @@ func (s *service) Handle(ctx context.Context, reqbuf []byte) ([]byte, error) {
 	payload := request[len(request)-1]
 	pathArr := make([]string, 0)
 
-	for i := 2; i < len(request) - 1; i++ {
+	for i := 2; i < len(request)-1; i++ {
 		pathArr = append(pathArr, request[i].(string))
 	}
 	path := strings.ToLower(strings.Join(pathArr, "."))
-	
+
 	srvName, _ := utils.ParseServicePath(path)
 
 	dec := func(req interface{}) error {
@@ -131,12 +131,6 @@ func (s *service) Handle(ctx context.Context, reqbuf []byte) ([]byte, error) {
 		defer cancel()
 	}
 
-	// _, method, err := utils.ParseServicePath(string(request.ServicePath))
-	// if err != nil {
-	// 	return nil, codes.New(codes.ClientMsgErrorCode, "method is invalid")
-	// }
-
-
 	// 首字母大写
 	handler := s.handlers[path]
 	if handler == nil {
@@ -148,7 +142,7 @@ func (s *service) Handle(ctx context.Context, reqbuf []byte) ([]byte, error) {
 
 	if err != nil {
 		result = append(result, msgId)
-		// todo 
+		// todo
 		result = append(result, "error")
 		// result = append(result, "reply")
 		result = append(result, err)
@@ -158,10 +152,6 @@ func (s *service) Handle(ctx context.Context, reqbuf []byte) ([]byte, error) {
 		result = append(result, "reply")
 		result = append(result, rsp)
 	}
-
-	// result = append(result, msgId)
-	// result = append(result, "reply")
-	// result = append(result, rsp)
 
 	rspbuf, err := serverSerialization.Marshal(result)
 	if err != nil {

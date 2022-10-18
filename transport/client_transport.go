@@ -2,6 +2,11 @@ package transport
 
 import (
 	"context"
+	"errors"
+	"syscall"
+	// "net"
+
+	"github.com/dayueba/mrpc/log"
 )
 
 type clientTransport struct {
@@ -61,7 +66,7 @@ func (c *clientTransport) SendTcpReq(ctx context.Context, req []byte) ([]byte, e
 	}
 
 	conn, err := c.opts.Pool.Get(ctx, c.opts.Network, addr)
-	//	conn, err := net.DialTimeout("tcp", addr, c.opts.Timeout);
+	// conn, err := net.DialTimeout("tcp", addr, c.opts.Timeout);
 	if err != nil {
 		return nil, err
 	}
@@ -73,6 +78,10 @@ func (c *clientTransport) SendTcpReq(ctx context.Context, req []byte) ([]byte, e
 	for sendNum < len(req) {
 		num, err = conn.Write(req[sendNum:])
 		if err != nil {
+			// todo this have a error message
+			if errors.Is(err, syscall.EPIPE) {
+				log.Info("This is broken pipe error")
+			}
 			return nil, err
 		}
 		sendNum += num
@@ -86,10 +95,13 @@ func (c *clientTransport) SendTcpReq(ctx context.Context, req []byte) ([]byte, e
 	wrapperConn := wrapConn(conn)
 	frame, err := wrapperConn.framer.ReadFrame(conn)
 	if err != nil {
+		if errors.Is(err, syscall.ECONNRESET) {
+			log.Info("This is connection reset by peer error: ", err)
+		}
 		return nil, err
 	}
 
-	return frame, err
+	return frame, nil
 }
 
 func isDone(ctx context.Context) error {

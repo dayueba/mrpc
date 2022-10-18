@@ -14,9 +14,9 @@ type Pool interface {
 	Get(ctx context.Context, network string, address string) (net.Conn, error)
 }
 
-type pool struct {
-	opts *Options
-	conns *sync.Map
+type pool struct { // 更大的连接池，用来管理子连接池
+	opts *Options  // 不同的连接池的共同属性
+	conns *sync.Map // 管理不同的子连接池， key 是 server 的监听地址，value 是子连接池
 }
 
 var poolMap = make(map[string]Pool)
@@ -46,7 +46,7 @@ func NewConnPool(opt ...Option) *pool {
 	opts := &Options {
 		maxCap: 1000,
 		idleTimeout: 1 * time.Minute,
-		dialTimeout: 200 * time.Millisecond,
+		dialTimeout: 2000 * time.Millisecond,
 	}
 	m := &sync.Map{}
 
@@ -83,13 +83,13 @@ func (p *pool) Get(ctx context.Context, network string, address string) (net.Con
 
 type channelPool struct {
 	net.Conn
-	initialCap int  // initial capacity
-	maxCap int      // max capacity
-	maxIdle int     // max idle conn number
-	idleTimeout time.Duration  // idle timeout
-	dialTimeout time.Duration  // dial timeout
+	initialCap int  // 初始连接数
+	maxCap int      // 最大连接数
+	maxIdle int     // 最大空闲连接数
+	idleTimeout time.Duration  // 连接的空闲时间
+	dialTimeout time.Duration  // 超时时间
 	Dial func(context.Context) (net.Conn, error)
-	conns chan *PoolConn
+	conns chan *PoolConn // 使用 channel 管理连接，保证并发安全
 	mu sync.RWMutex
 }
 
@@ -123,7 +123,7 @@ func (p *pool) NewChannelPool(ctx context.Context, network string, address strin
 	}
 
 	for i := 0; i < p.opts.initialCap; i++ {
-		conn , err := c.Dial(ctx);
+		conn, err := c.Dial(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -187,10 +187,9 @@ func (c *channelPool) Put(conn *PoolConn) error {
 	}
 
 	select {
-	case c.conns <- conn :
+	case c.conns <- conn:
 		return nil
 	default:
-		// 连接池满
 		return conn.Close()
 	}
 }

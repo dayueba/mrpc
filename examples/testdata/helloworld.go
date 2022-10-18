@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"context"
 	// "errors"
+	"sync/atomic"
 
 
 	"github.com/dayueba/mrpc/protocol"
@@ -15,6 +16,7 @@ type DB string
 type Service struct {
 	db DB
 	log *log.Helper
+	count int64
 }
 
 type HelloRequest struct {
@@ -43,8 +45,21 @@ func (s *Service) SayHello(ctx context.Context, req *HelloRequest) (*HelloReply,
 		Msg : "world",
 	}
 
+	atomic.AddInt64(&s.count, 1)
+
 	return rsp, nil
 }
+
+func (s *Service) Count(ctx context.Context, req *HelloRequest) (*CountResponse, error) {
+	atomic.AddInt64(&s.count, 1)
+	// fmt.Println(s.count)
+
+	rsp := &CountResponse{
+		Count: 100,
+	}
+	return rsp, nil
+}
+
 
 func (s *Service) Add(ctx context.Context, req *AddRequest) (*AddReply, error) {
 	fmt.Println(s.db)

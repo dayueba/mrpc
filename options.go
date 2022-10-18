@@ -7,15 +7,15 @@ import (
 )
 
 type ServerOptions struct {
-	address           string        // 监听地址, e.g. :( ip://127.0.0.1:8080、 dns://www.google.com)
-	timeout           time.Duration // timeout
-	name string
+	address string        // 监听地址, e.g. :( ip://127.0.0.1:8080、 dns://www.google.com)
+	timeout time.Duration // timeout
+	name    string
 
 	interceptors    []interceptor.ServerInterceptor
-	pluginNames []string         // 插件名字
-	selectorSvrAddr string       // 服务发现地址
-	tracingSvrAddr  string 		 // tracing plugin server address, required when using the third-party tracing plugin
-	tracingSpanName string       // tracing span name, required when using the third-party tracing plugin
+	pluginNames     []string // 插件名字
+	selectorSvrAddr string   // 服务发现地址
+	tracingSvrAddr  string   // tracing plugin server address, required when using the third-party tracing plugin
+	tracingSpanName string   // tracing span name, required when using the third-party tracing plugin
 }
 
 type ServerOption func(*ServerOptions)
@@ -44,9 +44,9 @@ func WithInterceptor(interceptors ...interceptor.ServerInterceptor) ServerOption
 	}
 }
 
-func WithPlugin(pluginName ... string) ServerOption {
+func WithPlugin(pluginName ...string) ServerOption {
 	return func(o *ServerOptions) {
-		o.pluginNames = append(o.pluginNames, pluginName ...)
+		o.pluginNames = append(o.pluginNames, pluginName...)
 	}
 }
 

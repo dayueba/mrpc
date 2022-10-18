@@ -11,6 +11,7 @@ var (
 	ErrConnClosed = errors.New("connection closed ...")
 )
 
+// PoolConn 通过装饰者模式对原生连接 net.Conn 进行了修饰。这里也是通过互斥锁来保证并发安全，只不过这里粒度更细，用了读写锁 sync.RWMutex。
 type PoolConn struct {
 	net.Conn
 	c *channelPool

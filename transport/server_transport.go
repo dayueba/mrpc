@@ -60,7 +60,7 @@ func (s *serverTransport) ListenAndServe(ctx context.Context, opts ...ServerTran
 	if err != nil {
 		return err
 	}
-	log.Infof("%s\n", addr)
+	log.Infof("server listening on %s\n", addr)
 
 	go func() {
 		if err = s.serve(ctx, lis); err != nil {
@@ -114,7 +114,7 @@ func (s *serverTransport) serve(ctx context.Context, lis net.Listener) error {
 
 		go func() {
 			if err := s.handleConn(ctx, wrapConn(conn)); err != nil {
-				log.Infof("gorpc handle tcp conn error, %v", err)
+				log.Infof("mrpc handle tcp conn error, %v", err)
 			}
 		}()
 	}
