@@ -2,7 +2,7 @@ package testdata
 
 import (
 	"context"
-	"fmt"
+	"time"
 )
 
 type Service2 struct {
@@ -14,7 +14,7 @@ type AddReply2 struct {
 }
 
 func (s *Service2) Add(ctx context.Context, req *AddRequest) (*AddReply2, error) {
-	fmt.Println("have req")
+	time.Sleep(300 * time.Millisecond)
 	rsp := &AddReply2{
 		Result: req.A + req.B,
 	}
