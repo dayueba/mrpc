@@ -32,7 +32,7 @@ type service struct {
 	serviceName string                 // service name
 	// handlers    map[string]Handler
 	handlers *radix.Tree
-	opts        *ServerOptions // parameter options
+	opts     *ServerOptions // parameter options
 
 	closing bool // whether the service is closing
 }
