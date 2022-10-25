@@ -2,8 +2,10 @@
 called "msgpack rpc" or "my rpc"
 
 ## docs
+- [WIP]连接池设计: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnhhKMKTjAtiv1VCFqwD7fYt)
 - 限流: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnx5mMBOXaGYIeeM0uTXriTh)
 - 熔断: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnawR2Gn782uhDUtinYUizNQ)
+- 负载均衡: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnP8GuEVxgNl2qfa38GnSSCb)
 
 ## benckmark
 ```
@@ -22,7 +24,6 @@ INFO msg=throughput  (TPS)      : 16956
 - [ ] errors
 - [ ] 日志
 - [ ] 配置文件格式
-- [ ] 熔断
-- [ ] 负载均衡
 - [ ] 服务注册与发现 重构
 - [ ] 性能优化
+- [ ] examples 完善
