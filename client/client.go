@@ -136,6 +136,7 @@ func (c *defaultClient) invoke(ctx context.Context, req, rsp interface{}) error 
 	}
 
 	if respp[1].(string) == "error" {
+		// todo: to rpc error
 		e := protocol.RpcError{}
 		err = mapstructure.Decode(respp[len(respp)-1], &e)
 		if err != nil {

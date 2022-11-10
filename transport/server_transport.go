@@ -114,6 +114,12 @@ func (s *serverTransport) serve(ctx context.Context, lis net.Listener) error {
 		}
 
 		go func() {
+			defer func() {
+				if err := recover(); err != nil {
+					log.Infof("panic: %v", err)
+				}
+			}()
+
 			if err := s.handleConn(ctx, wrapConn(conn)); err != nil {
 				log.Infof("mrpc handle tcp conn error, %v", err)
 			}
