@@ -2,7 +2,9 @@
 called "msgpack rpc" or "my rpc"
 
 ## docs
+- 消息协议设计: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnwqy1WgahSaz1fOnNhoHrUc)
 - 连接池设计: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnhhKMKTjAtiv1VCFqwD7fYt)
+- 日志库设计: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnLrnNKxMDe4xBotymH7HVqf)
 - 错误码设计: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnlVQ9KKb1mqPDiVwuZxE3pb)
 - 限流: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnx5mMBOXaGYIeeM0uTXriTh)
 - 熔断: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnawR2Gn782uhDUtinYUizNQ)
