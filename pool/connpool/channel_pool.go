@@ -6,8 +6,8 @@ import (
 	"io"
 	"net"
 	"sync"
-	"time"
 	"sync/atomic"
+	"time"
 )
 
 var oneByte = make([]byte, 1)
@@ -15,13 +15,13 @@ var oneByte = make([]byte, 1)
 type channelPool struct {
 	initCap     int
 	maxCap      int
-	maxIdle int
+	maxIdle     int
 	idleTimeout time.Duration
 	dialTimeout time.Duration
 	Dial        func(context.Context) (net.Conn, error)
 	conns       chan *Conn
 	mu          sync.Mutex
-	inflight int32
+	inflight    int32
 }
 
 func (c *channelPool) Get(ctx context.Context) (*Conn, error) {
@@ -35,14 +35,30 @@ func (c *channelPool) Get(ctx context.Context) (*Conn, error) {
 		}
 
 		if conn.unusable {
-			return nil, ErrConnClosed
+			return nil, ErrConnClosed // 这里出错了没有自动重试，调用方根据错误类型来决定是否重试
 		}
 
 		return conn, nil
+	case <-ctx.Done(): // context取消或超时，则退出
+		return nil, ctx.Err()
 	default:
-		// if inflight > maxCap
-		// conn := <- c.conns
-		// else inflight ++  con := c.Dial(ctx)
+		if c.inflight > int32(c.maxCap) {
+			select {
+			case conn := <-c.conns:
+				if conn == nil {
+					return nil, ErrConnClosed
+				}
+
+				if conn.unusable {
+					return nil, ErrConnClosed // 这里出错了没有自动重试，调用方根据错误类型来决定是否重试
+				}
+
+				return conn, nil
+			case <-ctx.Done(): // context取消或超时，则退出
+				return nil, ctx.Err()
+			}
+		}
+
 		conn, err := c.Dial(ctx)
 		if err != nil {
 			return nil, err
