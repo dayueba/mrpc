@@ -51,6 +51,12 @@ type MethodDesc struct {
 	Handler    Handler
 }
 
+func NewService(opts *ServerOptions) Service {
+	return &service{
+		opts: opts,
+	}
+}
+
 // Handler is the handler of a method
 type Handler func(context.Context, interface{}, func(interface{}) error, []interceptor.ServerInterceptor) (interface{}, error)
 

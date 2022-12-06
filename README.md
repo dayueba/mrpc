@@ -2,6 +2,7 @@
 called "msgpack rpc" or "my rpc"
 
 ## docs
+- [Go编码规范](https://xjip3se76o.feishu.cn/wiki/wikcnFYQhkMwXQ22kU9IynKrrbJ)
 - 设计
   - 消息协议设计: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnwqy1WgahSaz1fOnNhoHrUc)
   - 连接池设计: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnhhKMKTjAtiv1VCFqwD7fYt)

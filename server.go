@@ -48,11 +48,6 @@ func NewServer(opt ...ServerOption) *Server {
 	return s
 }
 
-func NewService(opts *ServerOptions) Service {
-	return &service{
-		opts: opts,
-	}
-}
 
 func containPlugin(pluginName string, plugins []string) bool {
 	for _, plugin := range plugins {
