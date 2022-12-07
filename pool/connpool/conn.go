@@ -5,6 +5,8 @@ import (
 	"net"
 	"sync"
 	"time"
+
+	"github.com/dayueba/mrpc/log"
 )
 
 var ErrConnClosed = errors.New("connection closed")
@@ -31,7 +33,10 @@ func (p *Conn) Close() error {
 	}
 
 	// reset connection deadline
-	p.Conn.SetDeadline(time.Time{})
+	err := p.Conn.SetDeadline(time.Time{})
+	if err != nil {
+		log.Infof("SetDeadline error: %v\n", err)
+	}
 
 	// 如果连接正常 则放回连接池
 	return p.c.Put(p)

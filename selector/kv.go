@@ -1,7 +1,7 @@
 package selector
 
 type Node struct {
-	Key string
+	Key   string
 	Value []byte
-	weight int
+	// weight int
 }

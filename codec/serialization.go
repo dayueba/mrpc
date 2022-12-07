@@ -1,8 +1,8 @@
 package codec
 
 import (
-	"errors"
 	"bytes"
+	"errors"
 
 	"github.com/vmihailenco/msgpack/v5"
 )
@@ -42,8 +42,7 @@ func GetSerialization(name string) Serialization {
 	return DefaultSerialization
 }
 
-type MsgpackSerialization struct {}
-
+type MsgpackSerialization struct{}
 
 func (c *MsgpackSerialization) Marshal(v interface{}) ([]byte, error) {
 	if v == nil {
@@ -54,7 +53,7 @@ func (c *MsgpackSerialization) Marshal(v interface{}) ([]byte, error) {
 }
 
 func (c *MsgpackSerialization) Unmarshal(data []byte, v interface{}) error {
-	if data == nil || len(data) == 0 {
+	if len(data) == 0 {
 		return errors.New("unmarshal nil or empty bytes")
 	}
 

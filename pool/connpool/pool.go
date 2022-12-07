@@ -37,7 +37,7 @@ func NewPool(opt ...Option) *pool {
 	opts := &Options{
 		maxCap:      100,
 		initCap:     1,
-		maxIdle: 10,
+		maxIdle:     10,
 		idleTimeout: 1 * time.Minute,
 		dialTimeout: 200 * time.Millisecond,
 	}
@@ -117,7 +117,9 @@ func (p *pool) NewConnPool(ctx context.Context, address string) (*channelPool, e
 		if err != nil {
 			return nil, err
 		}
-		c.Put(c.wrapConn(conn))
+		if err = c.Put(c.wrapConn(conn)); err != nil {
+			return nil, err
+		}
 	}
 
 	c.RegisterChecker(3*time.Second, c.Checker)

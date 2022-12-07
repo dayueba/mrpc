@@ -3,8 +3,6 @@ package codec
 import (
 	"bytes"
 	"encoding/binary"
-	"math"
-
 	// "github.com/golang/protobuf/proto"
 )
 
@@ -16,7 +14,7 @@ type Codec interface {
 const FrameHeadLen = 4
 
 type FrameHeader struct {
-	Length uint32  	// total packet length
+	Length uint32 // total packet length
 }
 
 // GetCodec get a Codec by a codec name
@@ -31,7 +29,7 @@ var codecMap = make(map[string]Codec)
 
 var DefaultCodec = NewCodec()
 
-var NewCodec = 	func () Codec {
+var NewCodec = func() Codec {
 	return &defaultCodec{}
 }
 
@@ -66,16 +64,15 @@ func (c *defaultCodec) Encode(data []byte) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-
-func (c *defaultCodec) Decode(frame []byte) ([]byte,error) {
+func (c *defaultCodec) Decode(frame []byte) ([]byte, error) {
 	return frame[FrameHeadLen:], nil
 }
 
 type defaultCodec struct{}
 
-func upperLimit(val int) uint32 {
-	if val > math.MaxInt32 {
-		return uint32(math.MaxInt32)
-	}
-	return uint32(val)
-}
+// func upperLimit(val int) uint32 {
+// 	if val > math.MaxInt32 {
+// 		return uint32(math.MaxInt32)
+// 	}
+// 	return uint32(val)
+// }

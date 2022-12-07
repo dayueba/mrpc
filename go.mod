@@ -3,7 +3,6 @@ module github.com/dayueba/mrpc
 go 1.18
 
 require (
-	github.com/armon/go-radix v1.0.0
 	github.com/go-kratos/aegis v0.1.3
 	github.com/hashicorp/consul/api v1.15.2
 	github.com/mitchellh/mapstructure v1.5.0

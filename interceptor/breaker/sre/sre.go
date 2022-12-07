@@ -1,10 +1,10 @@
 package sre
 
 import (
+	"math"
 	"math/rand"
 	"sync"
 	"time"
-	"math"
 
 	"github.com/dayueba/mrpc/interceptor/breaker"
 
@@ -24,7 +24,7 @@ type Breaker struct {
 	k       float64
 	request int64
 
-	state int32
+	// state int32 这字段目前没发现什么用
 }
 
 func NewBreaker(opts ...Option) breaker.Breaker {

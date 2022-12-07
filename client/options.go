@@ -4,17 +4,17 @@ import (
 	"time"
 
 	"github.com/dayueba/mrpc/interceptor"
-	"github.com/dayueba/mrpc/transport"
+	// "github.com/dayueba/mrpc/transport"
 )
 
 // Options defines the client call parameters
 type Options struct {
-	serviceName string // service name
-	method string // method name
-	target string 	// format e.g.:  ip:port 127.0.0.1:8000
-	timeout time.Duration  // timeout
-	selectorName string      // 服务发现插件名, e.g. : consul、zookeeper、etcd
-	transportOpts transport.ClientTransportOptions
+	serviceName  string        // service name
+	method       string        // method name
+	target       string        // format e.g.:  ip:port 127.0.0.1:8000
+	timeout      time.Duration // timeout
+	selectorName string        // 服务发现插件名, e.g. : consul、zookeeper、etcd
+	// transportOpts transport.ClientTransportOptions
 	interceptors []interceptor.ClientInterceptor
 }
 

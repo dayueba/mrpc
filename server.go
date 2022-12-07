@@ -14,14 +14,12 @@ import (
 	"github.com/dayueba/mrpc/plugin"
 	"github.com/dayueba/mrpc/plugin/jaeger"
 	"github.com/dayueba/mrpc/protocol"
-
-	"github.com/armon/go-radix"
 )
 
 type Server struct {
 	opts    *ServerOptions
 	service Service
-	name    string
+	// name    string
 	plugins []plugin.Plugin
 
 	closing bool // whether the server is closing
@@ -47,7 +45,6 @@ func NewServer(opt ...ServerOption) *Server {
 
 	return s
 }
-
 
 func containPlugin(pluginName string, plugins []string) bool {
 	for _, plugin := range plugins {
@@ -188,8 +185,9 @@ func (s *Server) Register(sd *ServiceDesc, svr interface{}) {
 
 	if s.service == nil {
 		s.service = &service{
-			svr:      make(map[string]interface{}),
-			handlers: radix.New(),
+			svr: make(map[string]interface{}),
+			// handlers: radix.New(),
+			handlers: make(map[string]Handler),
 		}
 	}
 

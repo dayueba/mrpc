@@ -13,7 +13,6 @@ import (
 	"github.com/dayueba/mrpc/transport"
 	"github.com/dayueba/mrpc/utils"
 
-	"github.com/armon/go-radix"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -30,9 +29,9 @@ type service struct {
 	ctx         context.Context        // Each service is managed in one context
 	cancel      context.CancelFunc     // controller of context
 	serviceName string                 // service name
-	// handlers    map[string]Handler
-	handlers *radix.Tree
-	opts     *ServerOptions // parameter options
+	handlers    map[string]Handler
+	// handlers *radix.Tree
+	opts *ServerOptions // parameter options
 
 	closing bool // whether the service is closing
 }
@@ -62,10 +61,10 @@ type Handler func(context.Context, interface{}, func(interface{}) error, []inter
 
 func (s *service) Register(handlerName string, handler Handler) {
 	if s.handlers == nil {
-		s.handlers = radix.New()
+		s.handlers = make(map[string]Handler)
 	}
-	// s.handlers[handlerName] = handler
-	s.handlers.Insert(handlerName, handler)
+	s.handlers[handlerName] = handler
+	// s.handlers.Insert(handlerName, handler)
 }
 
 func (s *service) AddSvr(serviceName string, svr interface{}) {
@@ -139,16 +138,18 @@ func (s *service) Handle(ctx context.Context, reqbuf []byte) ([]byte, error) {
 		defer cancel()
 	}
 
-	// handler := s.handlers[path]
-	// if handler == nil {
-	// 	return nil, errors.New("handlers is nil")
-	// }
-	handler, ok := s.handlers.Get(path)
-	if !ok {
+	handler := s.handlers[path]
+	if handler == nil {
 		return nil, errors.New("handlers is nil")
 	}
+	// handler, ok := s.handlers.Get(path)
+	// if !ok {
+	// 	return nil, errors.New("handlers is nil")
+	// }
 
-	rsp, err := handler.(Handler)(ctx, s.svr[srvName], dec, s.opts.interceptors)
+	// rsp, err := handler.(Handler)(ctx, s.svr[srvName], dec, s.opts.interceptors)
+	rsp, err := handler(ctx, s.svr[srvName], dec, s.opts.interceptors)
+
 	result := []interface{}{}
 
 	if err != nil {

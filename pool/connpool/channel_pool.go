@@ -8,6 +8,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/dayueba/mrpc/log"
 )
 
 var oneByte = make([]byte, 1)
@@ -113,7 +115,10 @@ func (c *channelPool) RegisterChecker(internal time.Duration, checker func(conn 
 						pc.MarkUnusable()
 						pc.Close()
 					} else {
-						c.Put(pc)
+						err := c.Put(pc)
+						if err != nil {
+							log.Infof("put err: %v", err)
+						}
 					}
 				default:
 				}
@@ -138,12 +143,12 @@ func (c *channelPool) Checker(pc *Conn) bool {
 }
 
 func isConnAlive(conn net.Conn) bool {
-	conn.SetReadDeadline(time.Now().Add(time.Millisecond))
+	_ = conn.SetReadDeadline(time.Now().Add(time.Millisecond))
 
 	if n, err := conn.Read(oneByte); n > 0 || err == io.EOF {
 		return false
 	}
 
-	conn.SetReadDeadline(time.Time{})
+	_ = conn.SetReadDeadline(time.Time{})
 	return true
 }

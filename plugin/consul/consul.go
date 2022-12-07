@@ -1,14 +1,14 @@
 package consul
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
-	"errors"
 	"strings"
 
-	"github.com/hashicorp/consul/api"
 	"github.com/dayueba/mrpc/plugin"
 	"github.com/dayueba/mrpc/selector"
+	"github.com/hashicorp/consul/api"
 )
 
 const Name = "consul"
@@ -22,45 +22,43 @@ var ConsulSvr = &Consul{
 	opts: &plugin.Options{},
 }
 
-
 type Consul struct {
-	opts *plugin.Options
-	client *api.Client
-	config *api.Config
-	balancerName string  // load balancing mode, including random, polling, weighted polling, consistent hash, etc
+	opts         *plugin.Options
+	client       *api.Client
+	config       *api.Config
+	balancerName string // load balancing mode, including random, polling, weighted polling, consistent hash, etc
 	writeOptions *api.WriteOptions
-	queryOptions *api.QueryOptions
+	// queryOptions *api.QueryOptions
 }
 
 func (c *Consul) Init(opts ...plugin.Option) error {
 	for _, o := range opts {
-		 o(c.opts)
+		o(c.opts)
 	}
 
 	if len(c.opts.Services) == 0 || c.opts.SvrAddr == "" || c.opts.SelectorSvrAddr == "" {
-		 return fmt.Errorf("consul init error, len(services) : %d, svrAddr : %s, selectorSvrAddr : %s",
-				len(c.opts.Services), c.opts.SvrAddr, c.opts.SelectorSvrAddr)
+		return fmt.Errorf("consul init error, len(services) : %d, svrAddr : %s, selectorSvrAddr : %s",
+			len(c.opts.Services), c.opts.SvrAddr, c.opts.SelectorSvrAddr)
 	}
 
 	if err := c.InitConfig(); err != nil {
-		 return err
+		return err
 	}
 
 	fmt.Printf("")
 	for _, serviceName := range c.opts.Services {
-		 nodeName := fmt.Sprintf("%s/%s", serviceName, c.opts.SvrAddr)
+		nodeName := fmt.Sprintf("%s/%s", serviceName, c.opts.SvrAddr)
 
-		 kvPair := &api.KVPair{
-				Key : nodeName,
-				Value : []byte(c.opts.SvrAddr),
-				Flags: api.LockFlagValue,
-		 }
+		kvPair := &api.KVPair{
+			Key:   nodeName,
+			Value: []byte(c.opts.SvrAddr),
+			Flags: api.LockFlagValue,
+		}
 
-		 if _, err := c.client.KV().Put(kvPair, c.writeOptions); err != nil {
-				return err
-		 }
+		if _, err := c.client.KV().Put(kvPair, c.writeOptions); err != nil {
+			return err
+		}
 	}
-
 
 	return nil
 }
@@ -69,15 +67,15 @@ func (c *Consul) Init(opts ...plugin.Option) error {
 func (c *Consul) Select(serviceName string) (string, error) {
 	nodes, err := c.Resolve(serviceName)
 
-	if nodes == nil || len(nodes) == 0 || err != nil {
-		 return "", err
+	if len(nodes) == 0 || err != nil {
+		return "", err
 	}
 
 	balancer := selector.GetBalancer(c.balancerName)
-	node := balancer.Balance(serviceName,nodes)
+	node := balancer.Balance(serviceName, nodes)
 
 	if node == nil {
-		 return "", fmt.Errorf("no services find in %s", serviceName)
+		return "", fmt.Errorf("no services find in %s", serviceName)
 	}
 
 	return parseAddrFromNode(node)
@@ -89,18 +87,18 @@ func (c *Consul) Resolve(serviceName string) ([]*selector.Node, error) {
 	// 获取服务列表
 	pairs, _, err := c.client.KV().List(serviceName, nil)
 	if err != nil {
-		 return nil, err
+		return nil, err
 	}
 
 	if len(pairs) == 0 {
-		 return nil, fmt.Errorf("no services find in path : %s", serviceName)
+		return nil, fmt.Errorf("no services find in path : %s", serviceName)
 	}
 	var nodes []*selector.Node
 	for _, pair := range pairs {
-		 nodes = append(nodes, &selector.Node {
-				Key : pair.Key,
-				Value : pair.Value,
-		 })
+		nodes = append(nodes, &selector.Node{
+			Key:   pair.Key,
+			Value: pair.Value,
+		})
 	}
 	return nodes, nil
 }

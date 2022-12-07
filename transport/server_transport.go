@@ -62,7 +62,7 @@ func (s *serverTransport) ListenAndServe(ctx context.Context, opts ...ServerTran
 			log.Fatalf("transport serve error, %v", err)
 		}
 	}()
-	
+
 	addr, err := utils.Extract(s.opts.Address, lis)
 	if err != nil {
 		return err
@@ -90,7 +90,7 @@ func (s *serverTransport) serve(ctx context.Context, lis net.Listener) error {
 
 		conn, err := tl.AcceptTCP()
 		if err != nil {
-			if ne, ok := err.(net.Error); ok && ne.Temporary() {
+			if ne, ok := err.(net.Error); ok && ne.Timeout() {
 				if tempDelay == 0 {
 					tempDelay = 5 * time.Millisecond
 				} else {
@@ -110,7 +110,10 @@ func (s *serverTransport) serve(ctx context.Context, lis net.Listener) error {
 		}
 
 		if s.opts.KeepAlivePeriod != 0 {
-			conn.SetKeepAlivePeriod(s.opts.KeepAlivePeriod)
+			err := conn.SetKeepAlivePeriod(s.opts.KeepAlivePeriod)
+			if err != nil {
+				log.Infof("SetKeepAlivePeriod error: %v", err)
+			}
 		}
 
 		go func() {
