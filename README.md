@@ -13,6 +13,9 @@ called "msgpack rpc" or "my rpc"
 - 使用
   - 错误码设计: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnlVQ9KKb1mqPDiVwuZxE3pb)
 - [踩坑记录](https://xjip3se76o.feishu.cn/wiki/wikcnGY5Tpx9Izh8xmvTKrmKI7d)
+- 其它
+  - [字节序](https://xjip3se76o.feishu.cn/wiki/wikcnl9d6CIJ3nWNoZXA3zpmOsb)
+  - [优雅重启](https://xjip3se76o.feishu.cn/wiki/wikcnRaAUML7cCujvTRBcGnW2zc)
 ## benckmark
 [压测代码仓库](https://github.com/dayueba/mrpc-benchmark)
 ```
