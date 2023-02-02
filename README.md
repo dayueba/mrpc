@@ -10,6 +10,7 @@ called "msgpack rpc" or "my rpc"
   - 限流: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnx5mMBOXaGYIeeM0uTXriTh)
   - 熔断: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnawR2Gn782uhDUtinYUizNQ)
   - 负载均衡: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnP8GuEVxgNl2qfa38GnSSCb)
+  - 异步处理: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnQo4knFWi8xSRLzEBZe4Kib)
 - 使用
   - 错误码设计: [docs](https://xjip3se76o.feishu.cn/wiki/wikcnlVQ9KKb1mqPDiVwuZxE3pb)
 - [踩坑记录](https://xjip3se76o.feishu.cn/wiki/wikcnGY5Tpx9Izh8xmvTKrmKI7d)
