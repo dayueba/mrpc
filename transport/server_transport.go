@@ -2,6 +2,7 @@ package transport
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net"
 	"time"
@@ -79,8 +80,11 @@ func (s *serverTransport) serve(ctx context.Context, lis net.Listener) error {
 	if !ok {
 		return codes.NetworkNotSupportedError
 	}
+	i := 0
 
 	for {
+		fmt.Println("ping")
+
 		// check upstream ctx is done
 		select {
 		case <-ctx.Done():
@@ -89,6 +93,9 @@ func (s *serverTransport) serve(ctx context.Context, lis net.Listener) error {
 		}
 
 		conn, err := tl.AcceptTCP()
+		//atomic.AddInt64(&count, 1)
+		i++
+		fmt.Println("conn count: ", i)
 		if err != nil {
 			if ne, ok := err.(net.Error); ok && ne.Timeout() {
 				if tempDelay == 0 {
@@ -102,6 +109,7 @@ func (s *serverTransport) serve(ctx context.Context, lis net.Listener) error {
 				time.Sleep(tempDelay)
 				continue
 			}
+			//fmt.Println(err)
 			return err
 		}
 
@@ -123,7 +131,7 @@ func (s *serverTransport) serve(ctx context.Context, lis net.Listener) error {
 				}
 			}()
 
-			if err := s.handleConn(ctx, wrapConn(conn)); err != nil {
+			if err := s.handleConn(context.Background(), wrapConn(conn)); err != nil {
 				log.Infof("mrpc handle tcp conn error, %v", err)
 			}
 		}()
@@ -131,9 +139,14 @@ func (s *serverTransport) serve(ctx context.Context, lis net.Listener) error {
 }
 
 func (s *serverTransport) handleConn(ctx context.Context, conn *connWrapper) error {
-	defer conn.Close()
+	defer func() {
+		conn.Close()
+		//atomic.AddInt64(&count, -1)
+		//fmt.Println(count)
+	}()
 
 	for {
+
 		// check upstream ctx is done
 		select {
 		case <-ctx.Done():
@@ -160,7 +173,6 @@ func (s *serverTransport) handleConn(ctx context.Context, conn *connWrapper) err
 			return err
 		}
 	}
-
 }
 
 func (s *serverTransport) read(ctx context.Context, conn *connWrapper) ([]byte, error) {

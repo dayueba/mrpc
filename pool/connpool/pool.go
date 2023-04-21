@@ -2,8 +2,10 @@ package connpool
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"golang.org/x/sync/singleflight"
@@ -12,6 +14,8 @@ import (
 type Pool interface {
 	Get(ctx context.Context, address string) (*Conn, error)
 }
+
+var count int64
 
 // 全局连接池
 type pool struct {
@@ -23,10 +27,10 @@ type pool struct {
 var poolMap = make(map[string]Pool)
 
 func init() {
-	registorPool("default", DefaultPool)
+	registerPool("default", DefaultPool)
 }
 
-func registorPool(poolName string, pool Pool) {
+func registerPool(poolName string, pool Pool) {
 	poolMap[poolName] = pool
 }
 
@@ -35,7 +39,7 @@ var DefaultPool = NewPool()
 func NewPool(opt ...Option) *pool {
 	// default options
 	opts := &Options{
-		maxCap:      100,
+		maxCap:      1000000,
 		initCap:     1,
 		maxIdle:     10,
 		idleTimeout: 1 * time.Minute,
@@ -105,6 +109,8 @@ func (p *pool) NewConnPool(ctx context.Context, address string) (*channelPool, e
 				timeout = time.Until(t)
 			}
 
+			atomic.AddInt64(&count, 1)
+			fmt.Println(count)
 			return net.DialTimeout("tcp", address, timeout)
 		},
 		conns:       make(chan *Conn, p.opts.maxIdle),

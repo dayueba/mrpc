@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"syscall"
-	// "net"
 
 	"github.com/dayueba/mrpc/log"
 )
@@ -66,7 +65,7 @@ func (c *clientTransport) SendTcpReq(ctx context.Context, req []byte) ([]byte, e
 	}
 
 	conn, err := c.opts.Pool.Get(ctx, addr)
-	// conn, err := net.DialTimeout("tcp", addr, c.opts.Timeout);
+	//conn, err := net.DialTimeout("tcp", addr, c.opts.Timeout)
 	if err != nil {
 		return nil, err
 	}
@@ -97,6 +96,7 @@ func (c *clientTransport) SendTcpReq(ctx context.Context, req []byte) ([]byte, e
 	if err != nil {
 		if errors.Is(err, syscall.ECONNRESET) {
 			log.Info("This is connection reset by peer error: ", err)
+			//fmt.Println(conn.SetReadDeadline(time.Now().Add(time.Second)))
 		}
 		return nil, err
 	}

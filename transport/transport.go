@@ -45,6 +45,7 @@ func (f *framer) Resize() {
 func (f *framer) ReadFrame(conn net.Conn) ([]byte, error) {
 	frameHeader := make([]byte, codec.FrameHeadLen)
 	if num, err := io.ReadFull(conn, frameHeader); num != codec.FrameHeadLen || err != nil {
+		//fmt.Println("err: ", err)
 		return nil, err
 	}
 

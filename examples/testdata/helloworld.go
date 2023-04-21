@@ -1,21 +1,21 @@
 package testdata
 
 import (
-	"fmt"
 	"context"
+	"fmt"
+
 	// "errors"
 	"sync/atomic"
 
-
-	"github.com/dayueba/mrpc/protocol"
 	"github.com/dayueba/mrpc/log"
+	"github.com/dayueba/mrpc/protocol"
 )
 
 type DB string
 
 type Service struct {
-	db DB
-	log *log.Helper
+	db    DB
+	log   *log.Helper
 	count int64
 }
 
@@ -38,11 +38,11 @@ type AddReply struct {
 
 func NewService(db DB, logger log.Logger) *Service {
 	return &Service{db: db, log: log.NewHelper(logger)}
-} 
+}
 
 func (s *Service) SayHello(ctx context.Context, req *HelloRequest) (*HelloReply, error) {
 	rsp := &HelloReply{
-		Msg : "world",
+		Msg: "world",
 	}
 
 	atomic.AddInt64(&s.count, 1)
@@ -60,12 +60,14 @@ func (s *Service) Count(ctx context.Context, req *HelloRequest) (*CountResponse,
 	return rsp, nil
 }
 
-
 func (s *Service) Add(ctx context.Context, req *AddRequest) (*AddReply, error) {
-	fmt.Println(s.db)
+	//fmt.Println(s.db)
 	rsp := &AddReply{
 		Result: req.A + req.B,
 	}
+
+	atomic.AddInt64(&s.count, 1)
+	fmt.Println(s.count)
 
 	return rsp, nil
 }
@@ -74,6 +76,6 @@ func (s *Service) Oops(ctx context.Context, req *HelloRequest) (*HelloReply, err
 	s.log.Log(log.LevelInfo, "message", "have request")
 	return nil, protocol.RpcError{
 		ErrorCode: -1,
-		Message: "1231",
+		Message:   "1231",
 	}
 }
